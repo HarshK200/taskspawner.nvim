@@ -163,7 +163,3 @@ Other things to be aware of:
 - Telescope is required. If it is not installed, `:Spawn` shows an error.
 - Only `.vscode/tasks.json` in the current working directory is used.
 - `:SpawnPrevious` history is not kept between Neovim sessions.
-
-## License
-
-Add your license here.
