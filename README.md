@@ -1,3 +1,5 @@
+<img width="1280" height="720" alt="2026-10-0417-28-30-ezgif com-optimize(1)" src="https://github.com/user-attachments/assets/ae4ec5ad-10ee-46c4-ac7e-d50348a58714" />
+
 # taskspawner.nvim
 
 A lightweight, single-file Neovim plugin that runs the tasks defined in your project's `.vscode/tasks.json` inside terminal buffers, with a Telescope picker and a clickable tab bar for switching between running tasks.
