@@ -6,13 +6,13 @@
 ---@field shell ShellOptions
 
 ---@class PresentationOptions
----@field focus boolean
+---@field focus boolean|nil
 
 ---@class Task
 ---@field label string
 ---@field command string
 ---@field options Options|nil
----@field presentation PresentationOptions
+---@field presentation PresentationOptions|nil
 
 ---@class Tasks
 ---@field version string
@@ -69,17 +69,6 @@ local function refresh_winbar()
 	end
 
 	vim.wo[M.terminal_win].winbar = table.concat(tabs, "  ")
-end
-
--- removes any task with invalid buffer_id i.e. any stale/completed deleted task entry
-local function update_active_tasks()
-	for idx = #M.active_tasks, 1, -1 do
-		local task = M.active_tasks[idx]
-
-		if not vim.api.nvim_buf_is_valid(task.buffer_id) then
-			table.remove(M.active_tasks, idx)
-		end
-	end
 end
 
 -- Executes the task
@@ -150,7 +139,8 @@ local function execute_task(task)
 	refresh_winbar()
 
 	-- Jump back to your original window if focus is false
-	if vim.api.nvim_win_is_valid(origin_win) and task.presentation.focus == false then
+	local focus = task.presentation ~= nil and task.presentation.focus == true
+	if not focus and vim.api.nvim_win_is_valid(origin_win) then
 		vim.api.nvim_set_current_win(origin_win)
 	end
 end
@@ -158,6 +148,17 @@ end
 --------------------------------------------------------------------
 --                  EXTERNALY EXPOSED FUNCTION
 --------------------------------------------------------------------
+
+-- removes any task with invalid buffer_id i.e. any stale/completed deleted task entry
+function M.update_active_tasks()
+	for idx = #M.active_tasks, 1, -1 do
+		local task = M.active_tasks[idx]
+
+		if not vim.api.nvim_buf_is_valid(task.buffer_id) then
+			table.remove(M.active_tasks, idx)
+		end
+	end
+end
 
 function M.tasks_toggle()
 	-- close window if terminal_win is valid i.e. opened
@@ -330,19 +331,8 @@ function M.spawn_previous_task()
 	execute_task(task)
 end
 
-function M.setup()
-	-- create user commands
-	vim.api.nvim_create_user_command("TasksToggle", M.tasks_toggle, {})
-	vim.api.nvim_create_user_command("Spawn", M.spawn_task, {})
-	vim.api.nvim_create_user_command("SpawnPrevious", M.spawn_previous_task, {})
-
-	vim.api.nvim_create_autocmd("BufWipeout", {
-		callback = function()
-			vim.schedule(function()
-				update_active_tasks()
-			end)
-		end,
-	})
-end
+-- Deprecated: kept so existing configs don't break. Commands are now
+-- registered automatically by plugin/taskspawner.lua.
+function M.setup() end
 
 return M
